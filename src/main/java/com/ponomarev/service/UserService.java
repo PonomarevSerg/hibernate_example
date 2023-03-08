@@ -4,6 +4,8 @@ import com.ponomarev.model.User;
 import com.ponomarev.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -15,5 +17,9 @@ public class UserService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }

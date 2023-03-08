@@ -13,6 +13,7 @@ public class App {
                 .name("Oleg")
                 .build();
 
-        System.out.println(userService.findById(2L));
+        System.out.println(userService.findById(4L));
+        //userService.findAll().forEach(System.out::println);
     }
 }

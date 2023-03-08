@@ -3,6 +3,9 @@ package com.ponomarev.repository;
 import com.ponomarev.model.User;
 import com.ponomarev.util.HibernateUtil;
 import jakarta.persistence.Query;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,19 +28,24 @@ public class UserRepository implements CrudRepository<User, Long> {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public List<User> findAll() {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            String hql = "FROM User WHERE id = :id";
-            Query query = session.createNamedQuery(hql);
-            query.setParameter("id", id);
-            User user = (User) query.getSingleResult();
-            return Optional.ofNullable(user);
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<User> cr = cb.createQuery(User.class);
+            Root<User> root = cr.from(User.class);
+            cr.select(root);
+
+            Query query = session.createQuery(cr);
+            return query.getResultList();
         }
     }
 
     @Override
-    public List<User> findAll() {
-        return null;
+    public Optional<User> findById(Long id) {
+        try (final var session = HibernateUtil.getSessionFactory().openSession()) {
+            return Optional.ofNullable((User) session.createQuery(
+                    "from User user where user.id = :id").setParameter("id", id).getSingleResult());
+        }
     }
 
     @Override
