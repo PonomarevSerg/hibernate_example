@@ -1,7 +1,6 @@
 package com.ponomarev.repository;
 
 import com.ponomarev.model.Task;
-import com.ponomarev.model.User;
 import com.ponomarev.util.HibernateUtil;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -13,10 +12,10 @@ import jakarta.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
-public class UserRepository implements CrudRepository<User, Long> {
+public class TaskRepository implements CrudRepository<Task, Long> {
 
     @Override
-    public User save(User entity) {
+    public Task save(Task entity) {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             final var transaction = session.beginTransaction();
             try {
@@ -31,11 +30,11 @@ public class UserRepository implements CrudRepository<User, Long> {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Task> findAll() {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<User> cr = cb.createQuery(User.class);
-            Root<User> root = cr.from(User.class);
+            CriteriaQuery<Task> cr = cb.createQuery(Task.class);
+            Root<Task> root = cr.from(Task.class);
             cr.select(root);
 
             Query query = session.createQuery(cr);
@@ -44,13 +43,13 @@ public class UserRepository implements CrudRepository<User, Long> {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<Task> findById(Long id) {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            final var stringQuery = "from User user where user.id = :id";
-            final var user = session.createQuery(stringQuery, User.class)
+            final var stringQuery = "from Task task where task.id = :id";
+            final var task = session.createQuery(stringQuery, Task.class)
                     .setParameter("id", id)
                     .getSingleResult();
-            return Optional.ofNullable(user);
+            return Optional.ofNullable(task);
         }
     }
 
@@ -58,11 +57,11 @@ public class UserRepository implements CrudRepository<User, Long> {
     public boolean existsById(Long id) {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<User> cr = cb.createQuery(User.class);
-            Root<User> root = cr.from(User.class);
+            CriteriaQuery<Task> cr = cb.createQuery(Task.class);
+            Root<Task> root = cr.from(Task.class);
             cr.select(root).where(cb.equal(root.get("id"), id));
-            TypedQuery<User> typedQuery = session.createQuery(cr);
-            List<User> resultList = typedQuery.getResultList();
+            TypedQuery<Task> typedQuery = session.createQuery(cr);
+            List<Task> resultList = typedQuery.getResultList();
             return !resultList.isEmpty();
         }
     }
@@ -72,8 +71,8 @@ public class UserRepository implements CrudRepository<User, Long> {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             final var transaction = session.beginTransaction();
             try {
-                User deleteUser = session.get(User.class, id);
-                session.remove(deleteUser);
+                Task deleteTask = session.get(Task.class, id);
+                session.remove(deleteTask);
                 transaction.commit();
             } catch (Exception e) {
                 transaction.rollback();
@@ -83,7 +82,7 @@ public class UserRepository implements CrudRepository<User, Long> {
     }
 
     @Override
-    public Iterable<User> saveAll(Iterable<User> entities) {
+    public Iterable<Task> saveAll(Iterable<Task> entities) {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             final var transaction = session.beginTransaction();
             try {
@@ -103,8 +102,8 @@ public class UserRepository implements CrudRepository<User, Long> {
             final var transaction = session.beginTransaction();
             try {
                 CriteriaBuilder cb = session.getCriteriaBuilder();
-                CriteriaDelete<User> criteriaDelete = cb.createCriteriaDelete(User.class);
-                Root<User> root = criteriaDelete.from(User.class);
+                CriteriaDelete<Task> criteriaDelete = cb.createCriteriaDelete(Task.class);
+                Root<Task> root = criteriaDelete.from(Task.class);
                 criteriaDelete.where(cb.isNotNull(root));
                 session.createQuery(criteriaDelete).executeUpdate();
                 transaction.commit();
@@ -116,33 +115,17 @@ public class UserRepository implements CrudRepository<User, Long> {
     }
 
     @Override
-    public User update(User entity) {
-        final var stringQuery = "from User user where user.id = :id";
+    public Task update(Task entity) {
+        final var stringQuery = "from Task task where task.id = :id";
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            final var user = session.createQuery(stringQuery, User.class)
+            final var task = session.createQuery(stringQuery, Task.class)
                     .setParameter("id", entity.getId())
                     .getSingleResult();
-            if (user != null) {
+            if (task != null) {
                 final var transaction = session.beginTransaction();
-                user.setName(entity.getName());
-                user.setUpdateDateTime(entity.getCreateDateTime());
-                session.merge(user);
-                transaction.commit();
-            }
-        }
-        return entity;
-    }
-
-    public User updateTasks(User entity, List<Task> taskList) {
-        final var stringQuery = "from User user where user.id = :id";
-        try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            final var user = session.createQuery(stringQuery, User.class)
-                    .setParameter("id", entity.getId())
-                    .getSingleResult();
-            if (user != null) {
-                final var transaction = session.beginTransaction();
-                user.setCreateTasks(taskList);
-                session.merge(user);
+                task.setName(entity.getName());
+                task.setUpdateDateTime(entity.getCreateDateTime());
+                session.merge(task);
                 transaction.commit();
             }
         }

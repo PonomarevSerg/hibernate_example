@@ -1,5 +1,6 @@
 package com.ponomarev.service;
 
+import com.ponomarev.model.Task;
 import com.ponomarev.model.User;
 import com.ponomarev.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,12 @@ public class UserService {
     }
     public void deleteAll() {
         userRepository.deleteAll();
+    }
+    public User update (User entity) {
+        return userRepository.update(entity);
+    }
+
+    public User updateTask (User entity, List<Task> taskList) {
+        return userRepository.updateTasks(entity, taskList);
     }
 }

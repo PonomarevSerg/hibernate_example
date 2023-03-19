@@ -18,5 +18,7 @@ public interface CrudRepository<T, K> {
     Iterable<T> saveAll(Iterable<T> entities);
 
     void deleteAll();
+
+    T update (T entity);
 }
 
