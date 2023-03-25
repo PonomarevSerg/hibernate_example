@@ -126,6 +126,7 @@ public class UserRepository implements CrudRepository<User, Long> {
                 final var transaction = session.beginTransaction();
                 user.setName(entity.getName());
                 user.setUpdateDateTime(entity.getCreateDateTime());
+                user.setCreateTasks(entity.getCreateTasks());
                 session.merge(user);
                 transaction.commit();
             }
@@ -139,12 +140,10 @@ public class UserRepository implements CrudRepository<User, Long> {
             final var user = session.createQuery(stringQuery, User.class)
                     .setParameter("id", entity.getId())
                     .getSingleResult();
-            if (user != null) {
-                final var transaction = session.beginTransaction();
-                user.setCreateTasks(taskList);
-                session.merge(user);
-                transaction.commit();
+            if (taskList != null) {
+                taskList.forEach(t -> t.setUser(entity));
             }
+            session.merge(user);
         }
         return entity;
     }

@@ -1,6 +1,7 @@
 package com.ponomarev.service;
 
 import com.ponomarev.model.Task;
+import com.ponomarev.model.User;
 import com.ponomarev.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -33,5 +34,8 @@ public class TaskService {
     }
     public Task update (Task entity) {
         return taskRepository.update(entity);
+    }
+    public List<Task> showTasksForUser(User entity) {
+        return taskRepository.showTasksForUser(entity);
     }
 }

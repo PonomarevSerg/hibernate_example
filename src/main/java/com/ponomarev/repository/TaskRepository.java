@@ -1,6 +1,7 @@
 package com.ponomarev.repository;
 
 import com.ponomarev.model.Task;
+import com.ponomarev.model.User;
 import com.ponomarev.util.HibernateUtil;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -125,10 +126,21 @@ public class TaskRepository implements CrudRepository<Task, Long> {
                 final var transaction = session.beginTransaction();
                 task.setName(entity.getName());
                 task.setUpdateDateTime(entity.getCreateDateTime());
+                task.setUser(entity.getUser());
+                task.setDescription(entity.getDescription());
                 session.merge(task);
                 transaction.commit();
             }
         }
         return entity;
+    }
+
+    public List<Task> showTasksForUser(User entity) {
+        final var stringQuery = "from Task task where user.id = :id";
+        try (final var session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery(stringQuery, Task.class)
+                    .setParameter("id", entity.getId())
+                    .getResultList();
+        }
     }
 }

@@ -15,7 +15,8 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + id + " not found"));
     }
     public User save(User user) {
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return userRepository.updateTasks(savedUser, savedUser.getCreateTasks());
     }
     public List<User> findAll() {
         return userRepository.findAll();
