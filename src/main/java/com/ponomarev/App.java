@@ -9,6 +9,7 @@ import com.ponomarev.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class App {
     public static void main(String[] args) {
@@ -17,7 +18,29 @@ public class App {
         final var taskRepository = new TaskRepository();
         final var taskService = new TaskService(taskRepository);
 
-        userService.findAll().forEach(System.out::println);
-        taskService.findAll().forEach(System.out::println);
+//        userService.save(User.builder().name("name1").build());
+//        userService.save(User.builder().name("name2").build());
+
+/*        User user = User.builder()
+                .name("name2")
+                .build()
+                .withTask(Task.builder()
+                        .name("task1")
+                        .deadline(LocalDateTime.now())
+                        .description("descr")
+                        .build());
+
+        userService.save(user);*/
+
+        taskService.save(Task.builder()
+                .name("test")
+                .description("desc")
+                .deadline(LocalDateTime.now())
+                .build());
+
+
+//        userService.findAll().forEach(System.out::println);
+//        userService.findAllUsersWithTasks().forEach(System.out::println);
+//        taskRepository.findAll().forEach(System.out::println);
     }
 }

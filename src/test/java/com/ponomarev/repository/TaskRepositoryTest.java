@@ -2,6 +2,7 @@ package com.ponomarev.repository;
 
 import com.ponomarev.model.Task;
 import com.ponomarev.model.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -10,8 +11,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskRepositoryTest {
-    UserRepository userRepository = new UserRepository();
-    TaskRepository taskRepository = new TaskRepository();
+    private final UserRepository userRepository = new UserRepository();
+    private final TaskRepository taskRepository = new TaskRepository();
+
+    @AfterEach
+    void afterEach() {
+        taskRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void showTasksForUser() {
@@ -26,7 +33,6 @@ class TaskRepositoryTest {
                 .build();
         taskRepository.save(task);
 
-        // Получаем список задач для созданного пользователя
         List<Task> tasks = taskRepository.showTasksForUser(user);
 
         assertTrue(tasks.contains(task));

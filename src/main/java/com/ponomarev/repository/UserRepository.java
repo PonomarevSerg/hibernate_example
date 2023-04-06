@@ -1,12 +1,10 @@
 package com.ponomarev.repository;
 
-import com.ponomarev.model.Task;
 import com.ponomarev.model.User;
 import com.ponomarev.util.HibernateUtil;
-import jakarta.persistence.Query;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
@@ -32,25 +30,31 @@ public class UserRepository implements CrudRepository<User, Long> {
 
     @Override
     public List<User> findAll() {
+        final var stringQuery = "from User user";
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<User> cr = cb.createQuery(User.class);
-            Root<User> root = cr.from(User.class);
-            cr.select(root);
+            return session.createQuery(stringQuery, User.class)
+                    .getResultList();
+        }
+    }
 
-            Query query = session.createQuery(cr);
-            return query.getResultList();
+    public List<User> findAllUsersWithTasks() {
+        final var stringQuery = "from User user join fetch user.createTasks";
+        try (final var session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery(stringQuery, User.class)
+                    .getResultList();
         }
     }
 
     @Override
     public Optional<User> findById(Long id) {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            final var stringQuery = "from User user where user.id = :id";
+            final var stringQuery = "from User user join fetch user.createTasks where user.id = :id";
             final var user = session.createQuery(stringQuery, User.class)
                     .setParameter("id", id)
                     .getSingleResult();
             return Optional.ofNullable(user);
+        } catch (NoResultException e) {
+            return Optional.empty();
         }
     }
 
@@ -102,11 +106,8 @@ public class UserRepository implements CrudRepository<User, Long> {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             final var transaction = session.beginTransaction();
             try {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                CriteriaDelete<User> criteriaDelete = cb.createCriteriaDelete(User.class);
-                Root<User> root = criteriaDelete.from(User.class);
-                criteriaDelete.where(cb.isNotNull(root));
-                session.createQuery(criteriaDelete).executeUpdate();
+                String hql = "delete from users";
+                session.createNativeQuery(hql, User.class).executeUpdate();
                 transaction.commit();
             } catch (Exception e) {
                 transaction.rollback();
@@ -114,6 +115,26 @@ public class UserRepository implements CrudRepository<User, Long> {
             }
         }
     }
+
+/*    @Override
+    public void deleteAll() {
+        try (final var session = HibernateUtil.getSessionFactory().openSession()) {
+            final var transaction = session.beginTransaction();
+            try {
+                List<Integer> collect = findAllUsersWithTasks()
+                        .stream()
+                        .map(user -> user.getId().intValue()).toList();
+                final var stringQuery = "delete from users u where u.id = :id";
+                NativeQuery<User> nativeQuery = session.createNativeQuery(stringQuery, User.class);
+                nativeQuery.setParameterList("ids", collect);
+                nativeQuery.executeUpdate();
+                transaction.commit();
+            } catch (Exception e) {
+                transaction.rollback();
+                e.printStackTrace();
+            }
+        }
+    }*/
 
     @Override
     public User update(User entity) {
@@ -130,20 +151,6 @@ public class UserRepository implements CrudRepository<User, Long> {
                 session.merge(user);
                 transaction.commit();
             }
-        }
-        return entity;
-    }
-
-    public User updateTasks(User entity, List<Task> taskList) {
-        final var stringQuery = "from User user where user.id = :id";
-        try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            final var user = session.createQuery(stringQuery, User.class)
-                    .setParameter("id", entity.getId())
-                    .getSingleResult();
-            if (taskList != null) {
-                taskList.forEach(t -> t.setUser(entity));
-            }
-            session.merge(user);
         }
         return entity;
     }

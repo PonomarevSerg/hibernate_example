@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class TaskRepository implements CrudRepository<Task, Long> {
@@ -32,14 +33,10 @@ public class TaskRepository implements CrudRepository<Task, Long> {
 
     @Override
     public List<Task> findAll() {
+        final var stringQuery = "from Task t join fetch t.user";
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Task> cr = cb.createQuery(Task.class);
-            Root<Task> root = cr.from(Task.class);
-            cr.select(root);
-
-            Query query = session.createQuery(cr);
-            return query.getResultList();
+            return session.createQuery(stringQuery, Task.class)
+                    .getResultList();
         }
     }
 
@@ -102,11 +99,8 @@ public class TaskRepository implements CrudRepository<Task, Long> {
         try (final var session = HibernateUtil.getSessionFactory().openSession()) {
             final var transaction = session.beginTransaction();
             try {
-                CriteriaBuilder cb = session.getCriteriaBuilder();
-                CriteriaDelete<Task> criteriaDelete = cb.createCriteriaDelete(Task.class);
-                Root<Task> root = criteriaDelete.from(Task.class);
-                criteriaDelete.where(cb.isNotNull(root));
-                session.createQuery(criteriaDelete).executeUpdate();
+                String hql = "delete from task";
+                session.createNativeQuery(hql, Task.class).executeUpdate();
                 transaction.commit();
             } catch (Exception e) {
                 transaction.rollback();

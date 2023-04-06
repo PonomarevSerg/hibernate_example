@@ -15,11 +15,13 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + id + " not found"));
     }
     public User save(User user) {
-        User savedUser = userRepository.save(user);
-        return userRepository.updateTasks(savedUser, savedUser.getCreateTasks());
+        return userRepository.save(user);
     }
     public List<User> findAll() {
         return userRepository.findAll();
+    }
+    public List<User> findAllUsersWithTasks() {
+        return userRepository.findAllUsersWithTasks();
     }
     public boolean existsById(Long id) {
         return userRepository.existsById(id);
@@ -37,7 +39,7 @@ public class UserService {
         return userRepository.update(entity);
     }
 
-    public User updateTask (User entity, List<Task> taskList) {
-        return userRepository.updateTasks(entity, taskList);
-    }
+//    public User updateTask (User entity, List<Task> taskList) {
+//        return userRepository.updateTasks(entity, taskList);
+//    }
 }
